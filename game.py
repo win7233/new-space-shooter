@@ -16,7 +16,20 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+def draw_player(screen, x, y):
+    """Draw the player's spaceship as a triangle"""
+    points = [
+        (x, y - 20),        # Top point
+        (x - 15, y + 20)    # Bottom left
+        (x + 15, y + 20)    # Bottom right
+    ]
+    pygame.draw.polygon(screen, GREEN, points)
 
+def draw_enemy(screen, x, y):
+    """Draw an enemy as a red circle"""
+    pygame.draw.circle(screen, RED, (int(x), int(y)), 15)
 
-
+def draw_bullet(screen, x, y):
+    """Draw a bullet as a white rectangle"""
+    pygame.draw.rect(screen, WHITE, (int(x) - 2, int(y) - 5, 4, 10))
 
