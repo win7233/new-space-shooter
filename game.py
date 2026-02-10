@@ -16,11 +16,26 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
+# Initialize Pygame
+pygame.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Space Shooter - Procedural Style')
+clock = pygame.time.Clock()
+
+# Player variables
+player_x =  SCREEN_WIDTH // 2
+pyayer_y = SCREEN_HEIGHT - 50
+player_speed = 5
+
+# Lists to store game objects
+enemies = []
+bullets = []
+
 def draw_player(screen, x, y):
     """Draw the player's spaceship as a triangle"""
     points = [
         (x, y - 20),        # Top point
-        (x - 15, y + 20)    # Bottom left
+        (x - 15, y + 20),    # Bottom left
         (x + 15, y + 20)    # Bottom right
     ]
     pygame.draw.polygon(screen, GREEN, points)
