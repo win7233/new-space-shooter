@@ -42,6 +42,26 @@ class Player:
             (self.x + 6, self.y + 7)        # Bottom Right Corner point
         ]
         pygame.draw.polygon(screen, GREEN, points)
+  
+class Bullet:
+    """A bullet fired by the player."""
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = -7     # Negative speed = moving upward
+
+    def move(self):
+        """Move the bullet upward"""
+        self.y += self.speed
+    
+    def is_off_screen(self):
+        """Returns True if the bullet has left the top of the screen."""
+        return self.y < 0
+    
+    def draw(self, screen):
+        """Draws the bullet as a small yellow rectangle"""
+        pygame.draw.rect(screen, YELLOW, (self.x - 2, self.y, 4, 10))
+
 
     
-
