@@ -63,5 +63,31 @@ class Bullet:
         """Draws the bullet as a small yellow rectangle"""
         pygame.draw.rect(screen, YELLOW, (self.x - 2, self.y, 4, 10))
 
+class Enemy:
+    """An enemy spaceship."""
 
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = random.randint(2, 5)
+        self.width = 10
+        self.height = 30
+
+    def move(self):
+        """Move the enemy downward."""
+        self.y += self.speed
+
+    def is_off_screen(self):
+        """Returns True if the enemy has moved past te bottom of the screen."""
+        return self.y > SCREEN_HEIGHT
+
+    def draw(self, screen):
+        """Draw the enemy as a red rectangle"""
+        pygame.draw.rect(screen, RED, (self.x, self.y, self.width, self.height))
+
+    def collides_with(self, bullet):
+        """Return True if this enemy has been hit by the given bullet."""
+        distance = ((self.x - bullet.x)**2 + (self.y - bullet.y)**2)**0.5
+        return distance < 20
     
+        
