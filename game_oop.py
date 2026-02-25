@@ -16,4 +16,32 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
+class Player:
+    '''The player's spaceship.'''
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.speed = 5          
+    
+    def move_left(self):
+        """Move the player left, staying on screen."""
+        if self.x > 0:
+            self.x -= self.speed
+    
+    def move_right(self):
+        """Move the player right, staying on screen."""
+        if self.x < SCREEN_WIDTH:
+            self.x += self.speed
+        
+    def draw(self, screen):
+        """Draw the player as a green triangle"""
+        points = [
+            (self.x + 6 // 2, self.y),      # Top Centre point
+            (self.x, self.y + 7),           # Bottom Left Corner point
+            (self.x + 6, self.y + 7)        # Bottom Right Corner point
+        ]
+        pygame.draw.polygon(screen, GREEN, points)
+
+    
 
