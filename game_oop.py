@@ -116,6 +116,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 bullets.append(Bullet(player.x + 3, player.y))
 
+
     # Player movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
