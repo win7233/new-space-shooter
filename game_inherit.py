@@ -56,3 +56,29 @@ class Player(Entity):
                 (self.x + self.width, self.y + self.height)
             ]
             pygame.draw.polygon(screen, self.colour, points)
+
+class Bullet(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y, speed=-8, colour=YELLOW)
+        self.width = 4
+        self.height = 10
+
+    #move() is inherited from Entity - we don't need to rewrite it
+    #Entity.move() adds self.speed to self.y, which is -8 so it goes up
+
+    def is_off_screen(self):
+        return self.y < 0
+    
+    def draw(self, screen):
+        """Override Entity.draw() to draw a yellow rectangle."""
+        pygame.draw.rect(
+            screen, self.colour,
+            (self.x - self.width // 2, self.y, self.width, self.height)
+        )
+
+
+
+
+        
+
+
