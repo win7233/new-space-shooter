@@ -3,6 +3,7 @@
 
 import pygame
 import random
+import math
 
 # Constants
 SCREEN_WIDTH = 800
@@ -15,6 +16,7 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+ORANGE = (255, 165, 0)
 
 class Entity:
     """Base class for all game objects that exist on screen."""
@@ -102,6 +104,29 @@ class Enemy(Entity):
         ]
         pygame.draw.polygon(screen, self.colour, points)
 
+class FastEnemy(Enemy):
+    """
+    A dangerous variant that moves faster and zigzags.
+    FastEnemy s an Enemy, which is an Entity -- a 3-level hierarchy!
+    """
+
+    def __init__(self, x, y):
+        super().__init__(x, y)      # calls Enemy.__init__
+        self.speed = 5              # override the default speed from Enemy
+        self.colour = ORANGE        # stand out - make it orange
+        self.age = 0                # track how long this enemy has been alive
+
+    def move(self):                 # override Entity.move() entirely
+        """Move down fast AND drift sideways using a sine wave."""
+        self.age += 1
+        self.y += self.speed
+        self.x += int(math.sin(self.age * 0.1) * 3)     # zigzag!
+
+    def draw(self, screen):
+        """Draw a scary looking X shape instead of a diamond."""
+        s = self.size
+        pygame.draw.line(screen, self.colour, (self.x - s, self.y - s), (self.x + s, self.y + s), 3)
+        pygame.draw.line(screen, self.colour, (self.x + s, self.y - s), (self.x - s, self.y + s), 3)
 
 
 
