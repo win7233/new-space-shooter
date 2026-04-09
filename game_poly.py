@@ -92,6 +92,7 @@ class Enemy(Entity):
     def __init__(self, x, y):
         super().__init__(x, y, speed=2, colour=RED)
         self.size = 20
+        self.point_value = 10
 
     # move is inherited from Entity - enemy drifts downward automatically
 
@@ -113,6 +114,19 @@ class Enemy(Entity):
 
         ]
         pygame.draw.polygon(screen, self.colour, points)
+
+    def __str__(self):
+        return f'Enemy at ({self.x}, {self.y}) points:{self.point_value}'
+
+    def __eq__(self, other):
+        if not isinstance(other, Enemy):
+            return NotImplemented
+        return self.point_value == other.point_value
+
+    def __lt__(self, other):
+        if not isinstance(other, Enemy):
+            return NotImplemented
+        return self.point_value < other.point_value
 
 class FastEnemy(Enemy):
     """
@@ -138,6 +152,9 @@ class FastEnemy(Enemy):
         pygame.draw.line(screen, self.colour, (self.x - s, self.y - s), (self.x + s, self.y + s), 3)
         pygame.draw.line(screen, self.colour, (self.x + s, self.y - s), (self.x - s, self.y + s), 3)
 
+    def __str__(self):
+        return f'FastEnemy at({self.x}, {self.y}  age:{self.age})'
+    
 
 
 
