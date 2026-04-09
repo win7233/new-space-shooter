@@ -35,11 +35,18 @@ class Entity:
         """To be overridden by each child class."""
         pass
 
+    def __str__(self):
+        return f'{self.__class__.__name__} at ({self.x}, {self.y}) speed={self.speed}' 
+    
+    def __repr__(self):
+        return f'{self.__class__.__name__}(x={self.x}, y={self.y}, speed={self.speed})'
+
 class Player(Entity):
     def __init__(self, x, y):
         super().__init__(x, y, speed=5, colour=GREEN)
         self.width = 30
         self.height = 20
+        self.health = 3
 
     def move_left(self):
         if self.x > 0:
@@ -58,6 +65,9 @@ class Player(Entity):
             (self.x + self.width, self.y + self.height)
         ]
         pygame.draw.polygon(screen, self.colour, points)
+
+    def __str__(self):
+        return f'Player at ({self.x}, {self.y}) HP: {self.health}'
 
 class Bullet(Entity):
     def __init__(self, x, y):
@@ -127,3 +137,7 @@ class FastEnemy(Enemy):
         s = self.size
         pygame.draw.line(screen, self.colour, (self.x - s, self.y - s), (self.x + s, self.y + s), 3)
         pygame.draw.line(screen, self.colour, (self.x + s, self.y - s), (self.x - s, self.y + s), 3)
+
+
+
+
