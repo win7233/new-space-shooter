@@ -121,8 +121,9 @@ class Enemy(Entity):
     def __eq__(self, other):
         if not isinstance(other, Enemy):
             return NotImplemented
-        return self.point_value == other.point_value
-
+        return (self.point_value == other.point_value and   
+                self.x == other.x and self.y == other.y)
+            
     def __lt__(self, other):
         if not isinstance(other, Enemy):
             return NotImplemented
@@ -155,6 +156,41 @@ class FastEnemy(Enemy):
     def __str__(self):
         return f'FastEnemy at({self.x}, {self.y}  age:{self.age})'
     
+class SpriteList:
+    """A container that holds all game srites."""
 
+    def __init__(self):
+        self._sprites = []       # the internal list
 
+    def add(self, sprite):
+        self._sprites.append(sprite)
 
+    def remove(self, sprite):
+        self._sprites.remove(sprite)
+
+    def update(self):
+        """Call move() on every sprite"""
+        for sprite in self._sprites:
+            sprite.move()
+
+    def draw(self, screen):
+        """Call draw() on every sprite."""
+        for sprite in self._sprites:
+            sprite.draw(screen)
+
+    def __len__(self):
+        return len(self._sprites)
+
+    def __contains__(self, sprite):
+        return sprite in self._sprites
+    
+    def __iter__(self):
+        return iter(self._sprites)
+    
+    def __str__(self):
+        return f'SpriteList({len(self)} sprites)'
+
+    def __repr__(self):
+        return f'SpriteList({self._sprites!r})'
+    
+# ===== TEMPORARY TEST BLOCK =====
