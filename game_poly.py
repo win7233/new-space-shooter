@@ -48,6 +48,9 @@ class Player(Entity):
         self.height = 20
         self.health = 3
 
+    def move(self):
+        pass
+
     def move_left(self):
         if self.x > 0:
             self.x -= self.speed
@@ -193,4 +196,85 @@ class SpriteList:
     def __repr__(self):
         return f'SpriteList({self._sprites!r})'
     
-# ===== TEMPORARY TEST BLOCK =====
+# ===== Initialize Pygame =====
+pygame.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Space Shooter OOP")
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)
+
+# ===== Game State =====
+player = Player(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT - 60)
+sprites = SpriteList()              # every game object lives here
+sprites.add(player)
+score = 0
+enemy_timer = 0
+running = True
+
+# ===== Main Loop =====
+while running:
+
+    # Events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                b = Bullet(player.x, player.y)
+                sprites.add(b)
+
+    # Player movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        player.move_left()
+    if keys[pygame.K_RIGHT]:
+        player.move_right()
+
+    # Spawn Enemies - occasionally make a fast one
+    enemy_timer += 1
+    if enemy_timer >= 60:
+        x = random.randint(20, SCREEN_WIDTH - 20)
+        if random.random() < 0.25:      # 25% chance of a FastEnemy
+            f = FastEnemy(x, 0)
+            sprites.add(f)
+        else:
+            e = Enemy(x, 0)
+            sprites.add(e)
+        enemy_timer = 0
+    
+    # Update ALL sprites (polymorphism!)
+    sprites.update()
+    
+    # Collision detection with instanceof bonus points
+    to_remove = []
+
+    for sprite1 in sprites:
+        if isinstance(sprite1, Bullet):
+            for sprite2 in sprites:
+                if isinstance(sprite2, Enemy):
+                    if sprite2.collides_with(sprite1):
+                        score += sprite2.point_value
+                        to_remove.append(sprite1)
+                        to_remove.append(sprite2)
+                        break    # bullet is gone, stop checking it
+    
+    for s in to_remove:
+        if s in sprites:
+            sprites.remove(s)
+    
+
+    # Draw everything
+    screen.fill(BLACK)
+    sprites.draw(screen)
+    score_text = font.render(f'Score: {score}', True, WHITE)
+    hp_text = font.render(f'HP:{player.health}', True, WHITE)
+    info_text = font.render(f'Sprites: {len(sprites)}', True, WHITE)
+    screen.blit(score_text, (10, 10))
+    screen.blit(hp_text, (10, 36))
+    screen.blit(info_text, (SCREEN_WIDTH - 160, 10))
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
+
+
