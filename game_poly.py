@@ -26,6 +26,7 @@ class Entity:
         self.y = y
         self.speed = speed
         self.colour = colour
+        self.point_value = 0
         self.team = "neutral"       # Default
 
     def move(self):
@@ -44,7 +45,6 @@ class Entity:
         distance = ((self.x - other.x) **2 + (self.y - other.y)**2)**0.5
         return distance < 20
 
-
     def __str__(self):
         return f'{self.__class__.__name__} at ({self.x}, {self.y}) speed={self.speed}' 
     
@@ -57,7 +57,7 @@ class Player(Entity):
         self.width = 30
         self.height = 20
         self.health = 3
-        self.team = "player"
+        self.team = "player" 
 
     def move(self):
         pass
@@ -299,3 +299,4 @@ while running:
 pygame.quit()
 
 
+ 
