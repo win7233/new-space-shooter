@@ -26,14 +26,24 @@ class Entity:
         self.y = y
         self.speed = speed
         self.colour = colour
+        self.team = "neutral"       # Default
 
     def move(self):
         """Default move behaviour - child classes can override this."""
         self.y += self.speed
 
+    def is_off_screen(self):
+        """Default: never off screen.  Child classes override this."""
+        return False
+
     def draw(self, screen):
         """To be overridden by each child class."""
         pass
+
+    def collides_with(self, other):
+        distance = ((self.x - other.x) **2 + (self.y - other.y)**2)**0.5
+        return distance < 20
+
 
     def __str__(self):
         return f'{self.__class__.__name__} at ({self.x}, {self.y}) speed={self.speed}' 
@@ -47,6 +57,7 @@ class Player(Entity):
         self.width = 30
         self.height = 20
         self.health = 3
+        self.team = "player"
 
     def move(self):
         pass
@@ -77,6 +88,7 @@ class Bullet(Entity):
         super().__init__(x, y, speed=-8, colour=YELLOW)
         self.width = 4
         self.height = 10
+        self.team = "player"
 
     #move() is inherited from Entity - we don't need to rewrite it
     #Entity.move() adds self.speed to self.y, which is -8 so it goes up
@@ -96,6 +108,7 @@ class Enemy(Entity):
         super().__init__(x, y, speed=2, colour=RED)
         self.size = 20
         self.point_value = 10
+        self.team = "enemy"
 
     # move is inherited from Entity - enemy drifts downward automatically
 
@@ -249,9 +262,8 @@ while running:
     to_remove = []
 
     for sprite1 in sprites:
-        if isinstance(sprite1, Bullet):
-            for sprite2 in sprites:
-                if isinstance(sprite2, Enemy):
+        for sprite2 in sprites:
+            if sprite1.team != sprite2.team: 
                     if sprite2.collides_with(sprite1):
                         score += sprite2.point_value
                         to_remove.append(sprite1)
@@ -262,6 +274,15 @@ while running:
         if s in sprites:
             sprites.remove(s)
     
+    # Remove sprites that have left the screen
+    off_screen = []
+    
+    for s in sprites:
+        if s.is_off_screen():
+            off_screen.append(s)
+
+    for s in off_screen:
+        sprites.remove(s)
 
     # Draw everything
     screen.fill(BLACK)
