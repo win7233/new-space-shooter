@@ -56,8 +56,24 @@ class Player(Entity):
         super().__init__(x, y, speed=5, colour=GREEN)
         self.width = 30
         self.height = 20
-        self.health = 3
+        self._health = 100      # private - use the property to access
+        self.max_health = 100
         self.team = "player" 
+
+    @property
+    def health(self):
+        """Read the player's current health(never goes below 0)"""
+        return self._health
+    
+    @health.setter
+    def health(self, value):
+        """Set health.  Clamps to [0, max_health]"""
+        if value < 0:
+            self._health = 0
+        elif value > self.max_health:
+            self._health = self.max_health
+        else:
+            self._health = value
 
     def move(self):
         pass
@@ -81,7 +97,11 @@ class Player(Entity):
         pygame.draw.polygon(screen, self.colour, points)
 
     def __str__(self):
-        return f'Player at ({self.x}, {self.y}) HP: {self.health}'
+        bar_full = int((self.health/self.max_health) * 10)
+        bar_empty = 10 - bar_full
+        bar = "\u2588" * bar_full + "\u2591" * bar_empty
+        return (f'{self.__class__.__name__} at ({self.x},{self.y})'
+                f' HP[{bar}] {self.health}/{self.max_health}')
 
 class Bullet(Entity):
     def __init__(self, x, y):
@@ -208,4 +228,12 @@ class SpriteList:
 
     def __repr__(self):
         return f'SpriteList({self._sprites!r})'
-    
+
+# ===== Temporary Test Block =======
+if __name__ == "__main__":
+    p = Player(400, 500)
+    print(p)
+    p.health -=45
+    print(p)
+    p.health = -99999   # should clamp to 0
+    print(p)
