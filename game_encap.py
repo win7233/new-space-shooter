@@ -124,11 +124,26 @@ class Bullet(Entity):
         )
 
 class Enemy(Entity):
+    total_spawned = 0   # class attribute - one shared counter
+    
     def __init__(self, x, y):
         super().__init__(x, y, speed=2, colour=RED)
         self.size = 20
         self.point_value = 10
         self.team = "enemy"
+        self._health = 10
+        self.max_health = 10
+        Enemy.total_spawned +=1   # count every enemy created
+
+    @property
+    def health(self):
+        return self._health
+    
+    @health.setter
+    def health(self, value):
+        self._health = max(0, min(value, self.max_health))
+        # max (0, ...)  stops health from going below 0
+        # min(value, max_health) stops it from going above the maximum
 
     # move is inherited from Entity - enemy drifts downward automatically
 
@@ -229,11 +244,18 @@ class SpriteList:
     def __repr__(self):
         return f'SpriteList({self._sprites!r})'
 
-# ===== Temporary Test Block =======
-if __name__ == "__main__":
-    p = Player(400, 500)
-    print(p)
-    p.health -=45
-    print(p)
-    p.health = -99999   # should clamp to 0
-    print(p)
+# ===== Temporary Test Block =====
+p = Player(400, 500)
+print(p)
+p.health -= 45
+print(p)
+p.health = -9999   # should clamp to 0
+print(p)
+
+e1 = Enemy(100, 0)
+e2 = Enemy(200, 0)
+e3 = FastEnemy(300, 0)
+print(f'Total enemies spawned: {Enemy.total_spawned}')  # should be 3
+e1.health = -50     # should clamp to 0
+print(f'e1 health: {e1.health}')
+print(f'e2 health: {e2.health}')
