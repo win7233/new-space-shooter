@@ -245,17 +245,10 @@ class SpriteList:
         return f'SpriteList({self._sprites!r})'
 
 # ===== Temporary Test Block =====
-p = Player(400, 500)
-print(p)
-p.health -= 45
-print(p)
-p.health = -9999   # should clamp to 0
-print(p)
-
+Enemy.total_spawned = 0     # reset so test is clean
 e1 = Enemy(100, 0)
-e2 = Enemy(200, 0)
-e3 = FastEnemy(300, 0)
-print(f'Total enemies spawned: {Enemy.total_spawned}')  # should be 3
-e1.health = -50     # should clamp to 0
-print(f'e1 health: {e1.health}')
-print(f'e2 health: {e2.health}')
+fe = FastEnemy(200, 0)
+print(Enemy.total_spawned)  # should be 2
+fe.health = -999            # should clamp to 0
+print(fe.health)
+
