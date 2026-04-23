@@ -45,6 +45,9 @@ class Entity:
         distance = ((self.x - other.x) **2 + (self.y - other.y)**2)**0.5
         return distance < 20
 
+    def on_hit(self):
+        return 0, False     # no points, don't remove
+    
     def __str__(self):
         return f'{self.__class__.__name__} at ({self.x}, {self.y}) speed={self.speed}' 
     
@@ -96,6 +99,10 @@ class Player(Entity):
         ]
         pygame.draw.polygon(screen, self.colour, points)
 
+    def on_hit(self):
+        self.health -= 10
+        return 0, False     # no points, player isn't removed
+    
     def __str__(self):
         bar_full = int((self.health/self.max_health) * 10)
         bar_empty = 10 - bar_full
@@ -115,6 +122,9 @@ class Bullet(Entity):
 
     def is_off_screen(self):
         return self.y < 0
+    
+    def on_hit(self):
+        return 0, True     # no points, but remove bullet
     
     def draw(self, screen):
         """Override Entity.draw() to draw a yellow rectangle."""
@@ -166,6 +176,13 @@ class Enemy(Entity):
         ]
         pygame.draw.polygon(screen, self.colour, points)
 
+    def on_hit(self):
+        self.health -= 10
+        if self.health <= 0:
+            return self.point_value, True   # point + remove
+        return 0, False     # still alive, no points, don't remove
+
+    
     def __str__(self):
         return f'Enemy at ({self.x}, {self.y}) points:{self.point_value}'
 
@@ -244,11 +261,98 @@ class SpriteList:
     def __repr__(self):
         return f'SpriteList({self._sprites!r})'
 
-# ===== Temporary Test Block =====
-Enemy.total_spawned = 0     # reset so test is clean
-e1 = Enemy(100, 0)
-fe = FastEnemy(200, 0)
-print(Enemy.total_spawned)  # should be 2
-fe.health = -999            # should clamp to 0
-print(fe.health)
+# ===== Initialize Pygame =====
+pygame.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Space Shooter OOP")
+clock = pygame.time.Clock()
+font = pygame.font.Font(None, 36)
 
+# ===== Game State =====
+player = Player(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT - 60)
+sprites = SpriteList()              # every game object lives here
+Enemy.total_spawned = 0             # reset counter at game start
+sprites.add(player)
+score = 0
+enemy_timer = 0
+running = True
+
+# ===== Main Loop =====
+while running:
+
+    # Events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                b = Bullet(player.x, player.y)
+                sprites.add(b)
+
+    # Player movement
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        player.move_left()
+    if keys[pygame.K_RIGHT]:
+        player.move_right()
+
+    # Spawn Enemies - occasionally make a fast one
+    enemy_timer += 1
+    if enemy_timer >= 60:
+        x = random.randint(20, SCREEN_WIDTH - 20)
+        if random.random() < 0.25:      # 25% chance of a FastEnemy
+            f = FastEnemy(x, 0)
+            sprites.add(f)
+        else:
+            e = Enemy(x, 0)
+            sprites.add(e)
+        enemy_timer = 0
+    
+    # Update ALL sprites (polymorphism!)
+    sprites.update()
+    
+    # Collision detection with instanceof bonus points
+    to_remove = []
+
+    for sprite1 in sprites:
+        for sprite2 in sprites:
+            if sprite1.team != sprite2.team: 
+                    if sprite2.collides_with(sprite1):
+                        points1, remove1 = sprite1.on_hit()
+                        points2, remove2 = sprite2.on_hit()
+                        score += points1 + points2
+                        if remove1:
+                            to_remove.append(sprite1)
+                        if remove2:
+                            to_remove.append(sprite2)
+                        break    # bullet is gone, stop checking it
+    
+    for s in to_remove:
+        if s in sprites:
+            sprites.remove(s)
+    
+    # Remove sprites that have left the screen
+    off_screen = []
+    
+    for s in sprites:
+        if s.is_off_screen():
+            off_screen.append(s)
+
+    for s in off_screen:
+        sprites.remove(s)
+
+    # Draw everything
+    screen.fill(BLACK)
+    sprites.draw(screen)
+    score_text = font.render(f'Score: {score}', True, WHITE)
+    hp_text = font.render(f'HP:{player.health}', True, WHITE)
+    info_text = font.render(f'Sprites: {len(sprites)}', True, WHITE)
+    spawned_text = font.render(f'Enemies Spawned: {Enemy.total_spawned}', True, WHITE)
+    screen.blit(spawned_text, (10, 70))
+    screen.blit(score_text, (10, 10))
+    screen.blit(hp_text, (10, 36))
+    screen.blit(info_text, (SCREEN_WIDTH - 160, 10))
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
