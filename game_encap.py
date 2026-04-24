@@ -54,6 +54,7 @@ class Entity:
     def __repr__(self):
         return f'{self.__class__.__name__}(x={self.x}, y={self.y}, speed={self.speed})'
 
+
 class Player(Entity):
     def __init__(self, x, y):
         super().__init__(x, y, speed=5, colour=GREEN)
